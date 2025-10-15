@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { apiCall } from '../utils/api';
 
 function Login({ setIsAuthenticated }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,9 +16,8 @@ function Login({ setIsAuthenticated }) {
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const response = await fetch(endpoint, {
+      const response = await apiCall(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
 

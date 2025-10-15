@@ -3,6 +3,8 @@ import { io } from 'socket.io-client';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import { LogOut } from 'lucide-react';
+import { SOCKET_URL } from '../config';
+import { apiCall } from '../utils/api';
 
 function Chat({ setIsAuthenticated }) {
   const [socket, setSocket] = useState(null);
@@ -19,7 +21,7 @@ function Chat({ setIsAuthenticated }) {
 
     // Initialize socket connection
     const token = localStorage.getItem('token');
-    const newSocket = io('http://localhost:5000', {
+    const newSocket = io(SOCKET_URL, {
       auth: { token }
     });
 
@@ -78,12 +80,7 @@ function Chat({ setIsAuthenticated }) {
 
   const fetchChats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/chats', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiCall('/api/chats');
 
       if (!response.ok) throw new Error('Failed to fetch chats');
 
@@ -107,14 +104,8 @@ function Chat({ setIsAuthenticated }) {
 
   const handleNewChat = async (username) => {
     try {
-      const token = localStorage.getItem('token');
-      
       // Search for user
-      const searchResponse = await fetch(`/api/chats/users/search?query=${username}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const searchResponse = await apiCall(`/api/chats/users/search?query=${username}`);
 
       if (!searchResponse.ok) throw new Error('Failed to search users');
 
@@ -128,12 +119,8 @@ function Chat({ setIsAuthenticated }) {
       const user = searchData.users[0];
 
       // Create chat
-      const createResponse = await fetch('/api/chats', {
+      const createResponse = await apiCall('/api/chats', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify({
           isGroup: false,
           memberIds: [user.id]
